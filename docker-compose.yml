@@ -1,16 +1,7 @@
 # version is now using "compose spec"
 # v2 and v3 are now combined!
 # docker-compose v1.27+ required
-
 services:
-  proxy:
-    build: ./proxy
-    ports:
-    - "5002:80"
-    networks:
-    - front-tier
-    - back-tier
-
   vote:
     build: ./vote
     # use python rather than gunicorn for local dev
@@ -25,6 +16,14 @@ services:
     networks:
       - front-tier
       - back-tier
+
+  proxy:
+    build: ./proxy
+    ports:
+    - "5002:80"
+    networks:
+    - front-tier
+    - back-tier
 
   result:
     build: ./result
