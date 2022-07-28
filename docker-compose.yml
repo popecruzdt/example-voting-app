@@ -20,8 +20,7 @@ services:
   proxy:
     build: ./proxy
     depends_on:
-      vote:
-        condition: service_healthy
+      - vote
     ports:
     - "5002:80"
     networks:
