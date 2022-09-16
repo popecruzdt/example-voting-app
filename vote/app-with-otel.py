@@ -81,21 +81,26 @@ def hello():
         # opentelemetry
         tracer = trace.get_tracer(__name__)
         with tracer.start_as_current_span("processVote") as span1:
-            app.logger.info('POST request tracer')
             span1.set_attribute("voter_id", voter_id)
             span1.set_attribute("vote", vote)
+            dt_trace_id = trace.span.format_trace_id(span1.get_span_context().trace_id)
+            dt_span_id = trace.span.format_span_id(span1.get_span_context().span_id)
         # end opentelemetry
-            app.logger.info('Received vote for %s', vote)
-            data = json.dumps({'voter_id': voter_id, 'vote': vote})
+            app.logger.info('Received vote for %s | dt.trace_id: %s, dt.span_id: %s, dt.trace_sampled: true', vote, dt_trace_id, dt_span_id)
+            data = json.dumps({'voter_id': voter_id, 'vote': vote, 'dt_trace_id': dt_trace_id, 'dt_span_id': dt_span_id})
             # opentelemetry
             tracer = trace.get_tracer(__name__)
             with tracer.start_as_current_span("redisPush") as span2:
                 app.logger.info('Redis push tracer')
                 span2.set_attribute("voter_id", voter_id)
                 span2.set_attribute("vote", vote)
+                dt_trace_id = trace.span.format_trace_id(span2.get_span_context().trace_id)
+                dt_span_id = trace.span.format_span_id(span2.get_span_context().span_id)
                 # end opentelemetry
                 redis.rpush('votes', data)
+                app.logger.info('Pushed vote to redis: %s | dt.trace_id: %s, dt.span_id: %s, dt.trace_sampled: true', data, dt_trace_id, dt_span_id)
 
+    app.logger.info('access log')
     resp = make_response(render_template(
         'index.html',
         option_a=option_a,
